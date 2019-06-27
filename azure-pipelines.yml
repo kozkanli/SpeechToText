@@ -4,21 +4,29 @@
 # https://aka.ms/yaml
 variables:
   ConnectedServiceName: 'Azure Primary'
-
-  # Replace this name to match the name of the App Service you created earlier
   WebAppName: 'aytam-speechtotext'
   
 trigger:
 - master
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: Hosted Ubuntu 1604
 
 steps:
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '3.7'
+    versionSpec: '3.6'
     architecture: 'x64'
+
+- script: |
+    python3.6 -m venv antenv3.6
+    source antenv3.6/bin/activate
+    pip3.6 install setuptools
+    pip3.6 install -r requirements.txt
+
+  # The displayName is shows in the pipeline UI when a build runs
+  displayName: 'Install Dependencies'
+
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: '$(Build.SourcesDirectory)'
@@ -26,6 +34,7 @@ steps:
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/Application$(Build.BuildId).zip'
     replaceExistingArchive: true
+
 - task: AzureRMWebAppDeployment@4
   displayName: Azure App Service Deploy
   inputs:
@@ -35,11 +44,7 @@ steps:
     WebAppName: $(WebAppName)
     Package: '$(Build.ArtifactStagingDirectory)/Application$(Build.BuildId).zip'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-    python3.7 -m venv antenv3.6
-    source antenv3.6/bin/activate
-    pip install setuptools
-    pip install -r requirements.txt
-  displayName: 'Install Dependencies'
+    # The following command is specific to the python-sample-vscode-flask-tutorial code.
+    # You may or may not need a startup command for your own app.
+
+    StartupCommand: 'gunicorn --bind=0.0.0.0 --workers=4 startup:app'
