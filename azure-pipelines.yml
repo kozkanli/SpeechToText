@@ -3,7 +3,7 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 variables:
-  ConnectedServiceName: '<Azure Primary>'
+  ConnectedServiceName: 'Azure Primary'
 
   # Replace this name to match the name of the App Service you created earlier
   WebAppName: 'aytam-speechtotext'
